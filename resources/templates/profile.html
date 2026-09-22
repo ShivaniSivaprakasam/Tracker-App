@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>My Profile - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+    <script src="/js/password-toggle.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('profile')}"></div>
+
+    <main class="main-content">
+        <h1>My Profile</h1>
+
+        <p th:if="${param.updated}" class="msg-success">Profile updated successfully.</p>
+        <p th:if="${param.passwordChanged}" class="msg-success">Password changed successfully.</p>
+
+        <div class="content-grid">
+            <div class="main-col">
+                <div class="card glass">
+                    <h2>Edit Profile</h2>
+                    <form th:action="@{/profile/update}" th:object="${profileDto}" method="post">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" th:field="*{name}" />
+                        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="msg-error"></span>
+
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="text" id="phoneNumber" th:field="*{phoneNumber}" />
+                        <span th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="msg-error"></span>
+
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" th:field="*{bio}"></textarea>
+
+                        <label for="profilePictureUrl">Profile Picture URL</label>
+                        <input type="text" id="profilePictureUrl" th:field="*{profilePictureUrl}" />
+
+                        <button type="submit">Save Profile</button>
+                    </form>
+                </div>
+
+                <div class="card glass">
+                    <h2>Change Password</h2>
+                    <form th:action="@{/profile/change-password}" th:object="${passwordDto}" method="post">
+                        <label for="currentPassword">Current Password</label>
+                        <div class="password-field-wrapper"><input type="password" id="currentPassword" th:field="*{currentPassword}" /></div>
+                        <span th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}" class="msg-error"></span>
+
+                        <label for="newPassword">New Password</label>
+                        <div class="password-field-wrapper"><input type="password" id="newPassword" th:field="*{newPassword}" /></div>
+                        <span th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}" class="msg-error"></span>
+
+                        <label for="confirmNewPassword">Confirm New Password</label>
+                        <div class="password-field-wrapper"><input type="password" id="confirmNewPassword" th:field="*{confirmNewPassword}" /></div>
+
+                        <button type="submit">Change Password</button>
+                    </form>
+                </div>
+
+                <div class="card glass">
+                    <h2>Deactivate Account</h2>
+                    <p style="color:var(--text-muted);">Deactivating logs you out and blocks future logins until an admin reactivates it. Your data is preserved.</p>
+                    <form th:action="@{/profile/deactivate}" method="post" onsubmit="return confirm('Deactivate your account? You will be logged out immediately.');">
+                        <button type="submit" class="secondary">Deactivate My Account</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="side-col">
+                <div class="card glass">
+                    <h2>Profile Completion</h2>
+                    <div class="stat-value" th:text="${completionPercentage} + '%'"></div>
+                </div>
+
+                <div class="card glass">
+                    <h2>Account Info</h2>
+                    <p style="font-size:13px;">Email: <span th:text="${user.email}"></span></p>
+                    <p style="font-size:12px; color:var(--text-muted);">(cannot be changed)</p>
+                </div>
+
+                <div class="card glass">
+                    <h2><i class="bi bi-award"></i> Badges Earned</h2>
+                    <div class="card glass">
+                        <h2><i class="bi bi-bar-chart"></i> Badges by Type</h2>
+                        <canvas id="badgeChart" width="220" height="180"></canvas>
+                        <div id="badgeDataSource" style="display:none;"
+                             th:each="badge : ${badges}"
+                             th:text="${badge.name}"></div>
+                    </div>
+                    <p th:if="${#lists.isEmpty(badges)}" style="color:var(--text-muted); font-size:13px;">No badges earned yet.</p>
+                    <div th:unless="${#lists.isEmpty(badges)}" class="badge-grid">
+                        <div th:each="badge : ${badges}" class="badge-item">
+            <span th:class="'badge-shape ' +
+                (${badge.name == 'Goal Achieved'} ? 'badge-circle' :
+                 (${badge.name == '75% Complete'} ? 'badge-diamond' :
+                  (${badge.name == 'Halfway There'} ? 'badge-hex' : 'badge-shield')))">
+                <i th:class="(${#strings.contains(badge.name,'Streak')}) ? 'bi bi-fire' : 'bi bi-trophy'"></i>
+            </span>
+                            <span class="badge-name" th:text="${badge.name}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    var badgeNames = Array.from(document.querySelectorAll('#badgeDataSource')).map(function (el) { return el.textContent; });
+    var counts = {};
+    badgeNames.forEach(function (name) { counts[name] = (counts[name] || 0) + 1; });
+
+    var chartCanvas = document.getElementById('badgeChart');
+    if (chartCanvas && badgeNames.length > 0) {
+        new Chart(chartCanvas, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(counts),
+                datasets: [{ data: Object.values(counts), backgroundColor: '#7c5cf0', borderRadius: 4 }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted'), font: { size: 10 } }, grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { stepSize: 1, color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted') }, grid: { color: 'rgba(128,128,128,0.1)' } }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

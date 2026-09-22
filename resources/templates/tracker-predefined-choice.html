@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Choose a Template - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('trackers')}"></div>
+    <main class="main-content">
+        <h1>Choose a Tracker Category</h1>
+        <p style="color:var(--text-muted);">Pick a category to get a pre-filled tracker you can adjust before saving.</p>
+
+        <div class="category-grid">
+            <a th:href="@{/trackers/new/predefined/STUDY}" class="category-card">
+                <span class="cat-icon cat-study"><i class="bi bi-book"></i></span>Study
+            </a>
+            <a th:href="@{/trackers/new/predefined/EXERCISE}" class="category-card">
+                <span class="cat-icon cat-exercise"><i class="bi bi-activity"></i></span>Exercise
+            </a>
+            <a th:href="@{/trackers/new/predefined/HEALTH}" class="category-card">
+                <span class="cat-icon cat-health"><i class="bi bi-heart-pulse"></i></span>Health
+            </a>
+            <a th:href="@{/trackers/new/predefined/HABIT}" class="category-card">
+                <span class="cat-icon cat-habit"><i class="bi bi-calendar-check"></i></span>Habit
+            </a>
+            <a th:href="@{/trackers/new/predefined/FINANCE}" class="category-card">
+                <span class="cat-icon cat-finance"><i class="bi bi-cash-coin"></i></span>Finance
+            </a>
+        </div>
+
+        <p style="margin-top:22px;"><a th:href="@{/trackers/new}">Back</a></p>
+    </main>
+</div>
+</body>
+</html>

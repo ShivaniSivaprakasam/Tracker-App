@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Trash - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('trash')}"></div>
+    <main class="main-content">
+        <h1>Trash</h1>
+        <p style="color:var(--text-muted);">Trackers here are hidden from your dashboard and statistics. Restore them or delete permanently.</p>
+
+        <p th:if="${param.trackerRestored}" class="msg-success">Tracker restored successfully.</p>
+        <p th:if="${param.trackerDeleted}" class="msg-success">Tracker permanently deleted.</p>
+
+        <div class="card glass">
+            <p th:if="${#lists.isEmpty(trashedTrackers)}" style="color:var(--text-muted);">Trash is empty.</p>
+            <div th:each="tracker : ${trashedTrackers}" class="tracker-row">
+                <strong th:text="${tracker.name}"></strong> — <span th:text="${tracker.completionPercentage} + '%'"></span>
+                <div class="tracker-actions">
+                    <form th:action="@{/trackers/{id}/restore(id=${tracker.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="secondary">Restore</button>
+                    </form>
+                    <form th:action="@{/trackers/{id}/delete(id=${tracker.id})}" method="post" style="display:inline;" onsubmit="return confirm('Permanently delete this tracker and all its history?');">
+                        <button type="submit" class="secondary">Delete Permanently</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p><a th:href="@{/dashboard}">Back to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Archived Trackers - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('archived')}"></div>
+    <main class="main-content">
+        <h1>Archived Trackers</h1>
+
+        <div class="card glass">
+            <p th:if="${#lists.isEmpty(archivedTrackers)}" style="color:var(--text-muted);">No archived trackers.</p>
+            <div th:each="tracker : ${archivedTrackers}" class="tracker-row">
+                <strong th:text="${tracker.name}"></strong> — <span th:text="${tracker.completionPercentage} + '%'"></span>
+                <div class="tracker-actions">
+                    <form th:action="@{/trackers/{id}/restore(id=${tracker.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="secondary">Unarchive</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p><a th:href="@{/dashboard}">Back to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

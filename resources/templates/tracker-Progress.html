@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Log Progress - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('trackers')}"></div>
+    <main class="main-content">
+        <h1 th:text="${tracker.name}"></h1>
+
+        <div class="card glass">
+            <p>
+                Progress: <strong th:text="${tracker.currentProgress}"></strong> /
+                <strong th:text="${tracker.goalTarget}"></strong>
+                (<span th:text="${tracker.completionPercentage}"></span>%)
+            </p>
+            <p><i class="bi bi-fire" style="color:var(--accent);"></i> Current Streak: <span th:text="${tracker.currentStreak}"></span> days (Longest: <span th:text="${tracker.longestStreak}"></span> days)</p>
+            <p th:if="${tracker.status.name() == 'COMPLETED'}" style="color:var(--success);"><i class="bi bi-check2-circle"></i> Goal completed!</p>
+            <p th:if="${param.logged}" class="msg-success">Progress logged successfully.</p>
+            <p>
+                <a th:href="@{/trackers/{id}/export/csv(id=${tracker.id})}"><i class="bi bi-file-earmark-spreadsheet"></i> Export as CSV</a> |
+                <a th:href="@{/trackers/{id}/export/pdf(id=${tracker.id})}"><i class="bi bi-file-earmark-pdf"></i> Export as PDF</a>
+            </p>
+        </div>
+
+        <div class="card glass">
+            <h2>Log New Progress</h2>
+            <form th:action="@{/trackers/{id}/progress(id=${tracker.id})}" th:object="${progressDto}" method="post">
+                <label for="value">Amount <span th:if="${tracker.progressLabel != null}" th:text="'(' + ${tracker.progressLabel} + ')'"></span></label>
+                <input type="number" step="0.01" id="value" th:field="*{value}" />
+                <span th:if="${#fields.hasErrors('value')}" th:errors="*{value}" class="msg-error"></span>
+
+                <label for="entryDate">Date</label>
+                <input type="date" id="entryDate" th:field="*{entryDate}" th:max="${T(java.time.LocalDate).now()}" />
+                <span th:if="${#fields.hasErrors('entryDate')}" th:errors="*{entryDate}" class="msg-error"></span>
+
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" th:field="*{notes}"></textarea>
+
+                <button type="submit">Log Progress</button>
+            </form>
+        </div>
+
+        <div class="card glass">
+            <h2>Progress History</h2>
+            <p th:if="${#lists.isEmpty(history)}" style="color:var(--text-muted);">No progress logged yet.</p>
+            <table th:unless="${#lists.isEmpty(history)}">
+                <thead><tr><th>Date</th><th>Value</th><th>Notes</th></tr></thead>
+                <tbody>
+                <tr th:each="entry : ${history}">
+                    <td th:text="${entry.entryDate}"></td>
+                    <td th:text="${entry.value}"></td>
+                    <td th:text="${entry.notes}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card glass">
+            <h2><i class="bi bi-award"></i> Milestones</h2>
+            <p th:if="${#lists.isEmpty(milestones)}" style="color:var(--text-muted);">No milestones reached yet.</p>
+            <div th:unless="${#lists.isEmpty(milestones)}" class="badge-grid">
+                <div th:each="milestone : ${milestones}" class="badge-item">
+                    <span th:class="'badge-shape ' +
+                        (${milestone.title == 'Goal Achieved'} ? 'badge-circle' :
+                         (${milestone.title == '75% Complete'} ? 'badge-diamond' :
+                          (${milestone.title == 'Halfway There'} ? 'badge-hex' : 'badge-shield')))">
+                        <i th:class="(${#strings.contains(milestone.title,'Streak')}) ? 'bi bi-fire' : 'bi bi-trophy'"></i>
+                    </span>
+                    <span class="badge-name" th:text="${milestone.title}"></span>
+                </div>
+            </div>
+        </div>
+
+        <p><a th:href="@{/dashboard}">Back to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

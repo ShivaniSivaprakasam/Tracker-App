@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>My Trackers - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('trackers')}"></div>
+    <main class="main-content">
+        <h1>My Trackers</h1>
+
+        <div class="card glass">
+            <form th:action="@{/trackers}" method="get" style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+                <div style="flex:1; min-width:180px;">
+                    <label>Search</label>
+                    <input type="text" name="q" th:value="${search}" placeholder="Search by name..." />
+                </div>
+                <div>
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">All</option>
+                        <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}" th:selected="${cat == selectedCategory}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All</option>
+                        <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}" th:selected="${st == selectedStatus}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label>Sort</label>
+                    <select name="sort">
+                        <option value="recent" th:selected="${selectedSort == null or selectedSort == 'recent'}">Recently Updated</option>
+                        <option value="name" th:selected="${selectedSort == 'name'}">Name</option>
+                        <option value="oldest" th:selected="${selectedSort == 'oldest'}">Oldest</option>
+                        <option value="goal" th:selected="${selectedSort == 'goal'}">Goal</option>
+                    </select>
+                </div>
+                <button type="submit">Apply</button>
+                <a th:href="@{/trackers}" class="btn secondary">Reset</a>
+            </form>
+        </div>
+
+        <div class="card glass">
+            <p th:if="${#lists.isEmpty(trackers)}" style="color:var(--text-muted);">No trackers match your search/filter.</p>
+            <table th:unless="${#lists.isEmpty(trackers)}">
+                <thead><tr><th>Name</th><th>Category</th><th>Status</th><th>Progress</th><th>Actions</th></tr></thead>
+                <tbody>
+                <tr th:each="tracker : ${trackers}">
+                    <td th:text="${tracker.name}"></td>
+                    <td th:text="${tracker.category}"></td>
+                    <td><span th:class="'status-pill status-' + ${#strings.toLowerCase(tracker.status)}" th:text="${tracker.status}"></span></td>
+                    <td th:text="${tracker.completionPercentage} + '%'"></td>
+                    <td>
+                        <a th:href="@{/trackers/{id}/progress(id=${tracker.id})}">View</a> |
+                        <a th:href="@{/trackers/{id}/edit(id=${tracker.id})}">Edit</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

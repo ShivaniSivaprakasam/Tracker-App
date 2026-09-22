@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Admin - Manage Users</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('admin')}"></div>
+    <main class="main-content">
+        <h1>Admin Panel — All Users</h1>
+        <div class="card glass">
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Enabled</th><th>Roles</th><th>Actions</th></tr></thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.enabled} ? 'Yes' : 'No'"></td>
+                    <td>
+                        <span th:each="role, iter : ${user.roles}">
+                            <span th:text="${role.name}"></span><span th:if="${!iter.last}">, </span>
+                        </span>
+                    </td>
+                    <td>
+                        <div th:if="${user.id != currentUserId and (!user.isAdmin() or (user.promotedBy != null and user.promotedBy == currentUserId))}" style="display:inline;">
+                            <form th:action="@{/admin/users/{id}/toggle-enabled(id=${user.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="secondary" th:text="${user.enabled} ? 'Disable' : 'Enable'"></button>
+                            </form>
+                            <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post" style="display:inline;" onsubmit="return confirm('Permanently delete this user?');">
+                                <button type="submit" class="secondary">Delete</button>
+                            </form>
+                        </div>
+                        <form th:unless="${user.isAdmin()}" th:action="@{/admin/users/{id}/promote(id=${user.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="secondary">Promote to Admin</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p><a th:href="@{/dashboard}">Back to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

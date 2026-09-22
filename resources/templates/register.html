@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+    <script src="/js/password-toggle.js" defer></script>
+</head>
+<body>
+<div class="auth-container glass">
+    <button type="button" class="theme-toggle theme-toggle-corner"><i class="bi bi-moon-stars"></i> Dark Mode</button>
+    <h1>Create Your Account</h1>
+
+    <form th:action="@{/register}" th:object="${registerDto}" method="post">
+        <label for="name">Name</label>
+        <input type="text" id="name" th:field="*{name}" />
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="msg-error"></span>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" th:field="*{email}" />
+        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="msg-error"></span>
+
+        <label for="password">Password</label>
+        <div class="password-field-wrapper">
+            <input type="password" id="password" th:field="*{password}" />
+        </div>
+        <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="msg-error"></span>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p style="margin-top:20px;">Already have an account? <a th:href="@{/login}">Login here</a></p>
+</div>
+</body>
+</html>

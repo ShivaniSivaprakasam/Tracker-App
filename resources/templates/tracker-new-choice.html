@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Create Tracker - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('trackers')}"></div>
+    <main class="main-content">
+        <h1>Create a New Tracker</h1>
+        <p style="color:var(--text-muted);">How would you like to start?</p>
+
+        <div class="type-choice-grid">
+            <a th:href="@{/trackers/new/predefined}" class="card glass type-choice-card" style="text-decoration:none; display:flex;">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <h2>Predefined Tracker</h2>
+                <p style="color:var(--text-muted);">Ready-made templates for Study, Exercise, Health, Habit, or Finance with sensible defaults already filled in.</p>
+                <span class="btn">Use a Template</span>
+            </a>
+            <a th:href="@{/trackers/new/custom}" class="card glass type-choice-card" style="text-decoration:none; display:flex;">
+                <i class="bi bi-sliders"></i>
+                <h2>Custom Tracker</h2>
+                <p style="color:var(--text-muted);">Build your own from scratch — your own name, goal, and progress label.</p>
+                <span class="btn">Create Custom Tracker</span>
+            </a>
+        </div>
+
+        <p style="margin-top:20px;"><a th:href="@{/dashboard}">Cancel and return to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Something Went Wrong</title><link rel="stylesheet" href="/css/style.css" /><script src="/js/theme-toggle.js"></script></head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<body>
+<div class="auth-container glass" style="text-align:center;">
+    <h1>Something Went Wrong</h1>
+    <p style="color:var(--text-muted);">An unexpected error occurred. Please try again.</p>
+    <a th:href="@{/dashboard}" class="btn">Back to Dashboard</a>
+</div>
+</body>
+</html>

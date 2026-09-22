@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Monthly Summary - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+    <style>
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; }
+        .calendar-day-label { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; padding-bottom: 4px; }
+        .calendar-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text-muted); position: relative; }
+        .calendar-cell.empty { background: transparent; border: none; }
+        .calendar-cell.event { color: #fff; font-weight: 700; cursor: pointer; }
+        .calendar-cell.event-milestone { background: var(--accent); }
+        .calendar-cell.event-completed { background: var(--success); }
+        .calendar-cell.event-missed { background: var(--danger); }
+        .calendar-cell.event:hover { opacity: 0.85; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('dashboard')}"></div>
+    <main class="main-content">
+        <h1>Monthly Summary — <span th:text="${month} + '/' + ${year}"></span></h1>
+
+        <div class="card glass">
+            <p><i class="bi bi-check2-circle" style="color:var(--success);"></i> Goals Completed: <strong th:text="${summary.goalsCompletedThisMonth()}"></strong></p>
+            <p><i class="bi bi-x-circle" style="color:var(--danger);"></i> Goals Missed: <strong th:text="${summary.goalsMissedThisMonth()}"></strong></p>
+            <p><i class="bi bi-trophy" style="color:var(--accent);"></i> Best Performing Tracker: <strong th:text="${summary.bestPerformingTrackerName()}"></strong></p>
+            <p><i class="bi bi-fire" style="color:var(--accent);"></i> Longest Streak: <strong th:text="${summary.longestStreakThisMonth()} + ' days'"></strong></p>
+        </div>
+
+        <div class="card glass">
+            <h2><i class="bi bi-calendar3"></i> Activity Calendar</h2>
+            <p style="font-size:12px; color:var(--text-muted);">
+                <span style="color:var(--accent);">●</span> Milestone &nbsp;
+                <span style="color:var(--success);">●</span> Goal Completed &nbsp;
+                <span style="color:var(--danger);">●</span> Deadline Missed
+            </p>
+            <div class="calendar-grid">
+                <div class="calendar-day-label">Sun</div>
+                <div class="calendar-day-label">Mon</div>
+                <div class="calendar-day-label">Tue</div>
+                <div class="calendar-day-label">Wed</div>
+                <div class="calendar-day-label">Thu</div>
+                <div class="calendar-day-label">Fri</div>
+                <div class="calendar-day-label">Sat</div>
+
+                <th:block th:each="cell : ${calendarCells}">
+                    <div th:if="${cell.day() == null}" class="calendar-cell empty"></div>
+                    <a th:if="${cell.day() != null and cell.hasEvent()}"
+                       th:href="@{/trackers/{id}/progress(id=${cell.trackerId()})}"
+                       th:class="'calendar-cell event event-' + ${cell.type()}"
+                       th:title="${cell.tooltip()}"
+                       th:text="${cell.day()}"></a>
+                    <div th:if="${cell.day() != null and !cell.hasEvent()}" class="calendar-cell" th:text="${cell.day()}"></div>
+                </th:block>
+            </div>
+        </div>
+
+        <p>
+            <a th:href="@{/trackers/monthly-summary(year=${month == 1 ? year - 1 : year}, month=${month == 1 ? 12 : month - 1})}"><i class="bi bi-arrow-left"></i> Previous Month</a> |
+            <a th:href="@{/trackers/monthly-summary(year=${month == 12 ? year + 1 : year}, month=${month == 12 ? 1 : month + 1})}">Next Month <i class="bi bi-arrow-right"></i></a>
+        </p>
+        <p><a th:href="@{/dashboard}">Back to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

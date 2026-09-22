@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Create Tracker - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('trackers')}"></div>
+    <main class="main-content">
+        <h1 th:if="${editingTrackerId != null}">Edit Tracker</h1>
+        <h1 th:unless="${editingTrackerId != null}" th:text="${isPredefined} ? 'Review Your Tracker' : 'Create a Custom Tracker'"></h1>
+
+        <div class="card glass">
+            <form th:action="${editingTrackerId != null} ? @{/trackers/{id}/edit(id=${editingTrackerId})} : @{/trackers/new}" th:object="${trackerDto}" method="post">
+                <label for="name">Tracker Name</label>
+                <input type="text" id="name" th:field="*{name}" />
+                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="msg-error"></span>
+
+                <label>Category</label>
+                <p th:text="${trackerDto.category}" style="color:var(--text-muted);"></p>
+                <input type="hidden" th:field="*{category}" />
+
+                <label for="progressLabel">Progress Label</label>
+                <input type="text" id="progressLabel" th:field="*{progressLabel}" placeholder="e.g. Books Read" />
+
+                <label for="purpose">Purpose (optional)</label>
+                <textarea id="purpose" th:field="*{purpose}"></textarea>
+
+                <label for="goalTarget">Goal Target</label>
+                <input type="number" step="0.01" id="goalTarget" th:field="*{goalTarget}" />
+                <span th:if="${#fields.hasErrors('goalTarget')}" th:errors="*{goalTarget}" class="msg-error"></span>
+
+                <label for="deadline">Deadline (optional)</label>
+                <input type="date" id="deadline" th:field="*{deadline}" th:min="${T(java.time.LocalDate).now()}" />
+                <span th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}" class="msg-error"></span>
+
+                <button type="submit" th:text="${editingTrackerId != null} ? 'Save Changes' : 'Create Tracker'"></button>
+            </form>
+        </div>
+
+        <p><a th:href="@{/dashboard}">Back to Dashboard</a></p>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="sidebar glass" th:fragment="nav(active)">
+    <div class="brand"><i class="bi bi-speedometer2"></i> Tracker Central</div>
+    <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? ' active'"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <a th:href="@{/profile}" th:classappend="${active == 'profile'} ? ' active'"><i class="bi bi-person-circle"></i> My Profile</a>
+    <a th:href="@{/trackers}" th:classappend="${active == 'trackers'} ? ' active'"><i class="bi bi-list-check"></i> My Trackers</a>
+    <a th:href="@{/trackers/archived}" th:classappend="${active == 'archived'} ? ' active'"><i class="bi bi-archive"></i> Archived Trackers</a>
+    <a th:href="@{/trackers/trash}" th:classappend="${active == 'trash'} ? ' active'"><i class="bi bi-trash3"></i> Trash</a>
+    <a th:href="@{/activity-log}" th:classappend="${active == 'activity'} ? ' active'"><i class="bi bi-clock-history"></i> Activity Log</a>
+    <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:href="@{/admin/users}" th:classappend="${active == 'admin'} ? ' active'"><i class="bi bi-shield-lock"></i> Admin Panel</a>
+    <div class="sidebar-footer">
+        <button type="button" class="theme-toggle"><i class="bi bi-moon-stars"></i> Dark Mode</button>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="secondary" style="width:100%;"><i class="bi bi-box-arrow-right"></i> Logout</button>
+        </form>
+    </div>
+</aside>
+</body>
+</html>

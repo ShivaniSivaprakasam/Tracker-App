@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>Activity Log - Tracker App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/theme-toggle.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: nav('activity')}"></div>
+    <main class="main-content">
+        <h1>Account Activity Log</h1>
+        <div class="card glass">
+            <p th:if="${#lists.isEmpty(logs)}" style="color:var(--text-muted);">No activity recorded yet.</p>
+            <table th:unless="${#lists.isEmpty(logs)}">
+                <thead><tr><th>Date</th><th>Action</th><th>Description</th></tr></thead>
+                <tbody>
+                <tr th:each="log : ${logs}">
+                    <td th:text="${#temporals.format(log.createdDate, 'dd MMM yyyy, HH:mm')}"></td>
+                    <td th:text="${log.actionType}"></td>
+                    <td th:text="${log.description}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

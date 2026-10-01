@@ -1,24 +1,64 @@
 package com.trackerapp.tracker_app.service.impl;
 
 import com.trackerapp.tracker_app.service.EmailService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender mailSender;
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
+
+    @Value("${brevo.sender.email}")
+    private String senderEmail;
+
+    @Value("${brevo.sender.name:Tracker App}")
+    private String senderName;
 
     @Override
     public void sendSimpleEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", brevoApiKey);
+        headers.set("accept", "application/json");
+
+        Map<String, Object> sender = new HashMap<>();
+        sender.put("name", senderName);
+        sender.put("email", senderEmail);
+
+        Map<String, Object> recipient = new HashMap<>();
+        recipient.put("email", to);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("sender", sender);
+        payload.put("to", java.util.List.of(recipient));
+        payload.put("subject", subject);
+        // textContent sends plain text; Brevo also supports htmlContent if you
+        // ever want styled emails instead.
+        payload.put("textContent", body);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        try {
+            restTemplate.postForEntity(BREVO_API_URL, request, String.class);
+        } catch (Exception ex) {
+            // Surface the failure to the caller (NotificationScheduler already
+            // catches and logs/ignores per-recipient failures), but don't let
+            // a bad response body crash the app with an unhandled exception type.
+            throw new RuntimeException("Failed to send email via Brevo: " + ex.getMessage(), ex);
+        }
     }
 
     @Override

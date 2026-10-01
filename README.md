@@ -18,7 +18,9 @@ A full-stack Spring Boot web application for setting, tracking, and analyzing pe
 ![Deployment](https://img.shields.io/badge/Deployment-grey?style=flat-square)
 ![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square&logo=render&logoColor=white)
 
-![Live Demo](https://img.shields.io/badge/Live%20Demo-grey?style=flat-square)
+## 🔗 Live Demo
+
+**https://tracker-app-qwm4.onrender.com**
 > **Note:** This app is hosted on Render's free tier, which spins down after periods of inactivity. The first request after idle time may take 30–60 seconds while it wakes up.
 
 ---

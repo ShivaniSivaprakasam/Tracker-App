@@ -2,16 +2,24 @@
 
 A full-stack Spring Boot web application for setting, tracking, and analyzing personal goals across five categories (Study, Exercise, Health, Habit, Finance), with gamified progress tracking, an administrative control panel, and a REST API layer for third-party integration.
 
-![Backend](https://img.shields.io/badge/Backend-Spring%20Boot%204.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Security](https://img.shields.io/badge/Security-Spring%20Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
-![UI Engine](https://img.shields.io/badge/UI%20Engine-Thymeleaf-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white)
-![Database](https://img.shields.io/badge/Database-MySQL%208.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Containerized](https://img.shields.io/badge/Containerized-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![CI/CD](https://img.shields.io/badge/CI%2FCD-Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white)
-![Deployment](https://img.shields.io/badge/Deployment-AWS%20EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Backend](https://img.shields.io/badge/Backend-grey?style=flat-square)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot%204.1-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Security](https://img.shields.io/badge/Security-grey?style=flat-square)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white)
+![UI Engine](https://img.shields.io/badge/UI%20Engine-grey?style=flat-square)
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?style=flat-square&logo=thymeleaf&logoColor=white)
 
+![Database](https://img.shields.io/badge/Database-grey?style=flat-square)
+![MySQL](https://img.shields.io/badge/MySQL%208.0-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![Containerized](https://img.shields.io/badge/Containerized-grey?style=flat-square)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-grey?style=flat-square)
+![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white)
+![Deployment](https://img.shields.io/badge/Deployment-grey?style=flat-square)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square&logo=render&logoColor=white)
 
-**Live Demo:** https://tracker-app-qwm4.onrender.com/login
+![Live Demo](https://img.shields.io/badge/Live%20Demo-grey?style=flat-square)
+> **Note:** This app is hosted on Render's free tier, which spins down after periods of inactivity. The first request after idle time may take 30–60 seconds while it wakes up.
 
 ---
 
@@ -45,13 +53,13 @@ The project was built end-to-end as a portfolio piece demonstrating production-o
 | Database | MySQL 8, Flyway (schema migrations) |
 | Frontend | Thymeleaf, HTML5, CSS3, vanilla JavaScript |
 | API Docs | springdoc-openapi (Swagger UI) |
-| Email | Spring Mail (SMTP) |
+| Email | Brevo Transactional Email API (HTTPS) |
 | PDF Generation | OpenPDF |
 | Rate Limiting | Bucket4j |
 | Build Tool | Maven |
-| Containerization | Docker, Docker Compose |
-| CI/CD | Jenkins (Declarative Pipeline) |
-| Cloud | AWS EC2 |
+| Containerization | Docker |
+| CI/CD | Jenkins (Declarative Pipeline) → Docker Hub |
+| Cloud | Render (Web Service) |
 | Version Control | Git, GitHub |
 
 ---
@@ -60,11 +68,12 @@ The project was built end-to-end as a portfolio piece demonstrating production-o
 
 The application follows a standard layered architecture:
 
+```
 Controller (Thymeleaf MVC + REST)
 → Service (interface) / ServiceImpl (business logic)
 → Repository (Spring Data JPA)
 → MySQL
-
+```
 
 Business logic — streak calculation, milestone detection, completion percentage, ownership validation — lives entirely in the service layer, so it behaves identically whether invoked from the web UI or the REST API.
 
@@ -96,12 +105,20 @@ The schema consists of 11 core tables: `users`, `roles`, `user_roles`, `trackers
 - Maven
 - MySQL 8 (or Docker)
 
-### Option 1: Docker Compose (recommended)
+### Option 1: Docker
 ```bash
 git clone https://github.com/<your-username>/tracker-app.git
 cd tracker-app
-cp .env.example .env   # fill in your DB password and mail credentials
-docker compose up
+docker build -t tracker-app .
+docker run -p 8080:8080 \
+  -e DB_HOST=<your-db-host> \
+  -e DB_PORT=<your-db-port> \
+  -e DB_NAME=<your-db-name> \
+  -e DB_USERNAME=<your-db-username> \
+  -e DB_PASSWORD=<your-db-password> \
+  -e BREVO_API_KEY=<your-brevo-api-key> \
+  -e APP_BASE_URL=http://localhost:8080 \
+  tracker-app
 ```
 The app will be available at `http://localhost:8080`.
 
@@ -110,7 +127,7 @@ The app will be available at `http://localhost:8080`.
 mvn clean install
 mvn spring-boot:run
 ```
-Requires a local MySQL instance and `application.properties` configured with your database and SMTP credentials.
+Requires a local MySQL instance and the environment variables above configured in `application.properties` or your IDE's run configuration.
 
 ---
 
@@ -126,32 +143,35 @@ See `Jenkinsfile` in the project root.
 
 ## Deployment
 
-The application is deployed on an AWS EC2 instance running the same Docker Compose configuration used locally, pulling the pre-built image from Docker Hub rather than rebuilding on the server. An Elastic IP provides a stable public address.
+The application is deployed as a Render Web Service, which pulls the pre-built image directly from Docker Hub (no on-server build step). Environment variables (database credentials, Brevo API key, and the app's public base URL for email links) are configured through Render's dashboard rather than committed to source control.
+
+Transactional email is sent via Brevo's HTTPS API rather than traditional SMTP, since outbound SMTP ports are blocked on Render's free tier.
 
 ---
 
 ## Project Structure
 
+```
 src/main/java/com/trackerapp/tracker_app/
-├── config/ # Security, scheduling, rate limiting, OpenAPI config
-├── controller/ # MVC controllers + REST controllers
-├── dto/ # Request/response DTOs
-├── entity/ # JPA entities
-├── exception/ # Custom exceptions + global exception handling
-├── repository/ # Spring Data JPA repositories
-├── security/ # Custom UserDetailsService, auth handlers
-├── service/ # Service interfaces
+├── config/       # Security, scheduling, rate limiting, OpenAPI config
+├── controller/   # MVC controllers + REST controllers
+├── dto/          # Request/response DTOs
+├── entity/       # JPA entities
+├── exception/    # Custom exceptions + global exception handling
+├── repository/   # Spring Data JPA repositories
+├── security/     # Custom UserDetailsService, auth handlers
+├── service/      # Service interfaces
 ├── service/impl/ # Service implementations
-└── util/ # Password validation utility
+└── util/         # Password validation utility
 
 src/main/resources/
 ├── db/migration/ # Flyway SQL migrations
-├── static/ # CSS, JS
-└── templates/ # Thymeleaf views
-
+├── static/       # CSS, JS
+└── templates/    # Thymeleaf views
+```
 
 ---
 
 ## Author
 
-**Shivani S**
+**Shivani**
